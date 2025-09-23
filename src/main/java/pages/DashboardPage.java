@@ -15,7 +15,7 @@ public class DashboardPage {
 
     public DashboardPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public String getDashboardHeading() {
@@ -23,6 +23,8 @@ public class DashboardPage {
     }
 
     public EmployeePage goToEmployeePage() {
+        // ✅ Ensure PIM menu is visible first
+        wait.until(ExpectedConditions.presenceOfElementLocated(pimMenu));
         wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
         return new EmployeePage(driver);
     }
