@@ -35,6 +35,7 @@ jobs:
 
       - name: Run Maven Tests
         run: mvn -B clean test
+        working-directory: ${{ github.workspace }}   # 👈 ensures pom.xml is found at repo root
 
       - name: Upload surefire reports
         if: always()
