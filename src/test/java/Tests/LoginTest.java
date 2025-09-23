@@ -1,45 +1,39 @@
 package tests;
 
+import base.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import base.BaseTest;
-import pages.DashboardPage;
 import pages.LoginPage;
-
+import pages.DashboardPage;
 
 public class LoginTest extends BaseTest {
 
     @Test
-    public void verifyValidLogin() 
-    {
-        // Create LoginPage object
+    public void verifyValidLogin() {
         LoginPage loginPage = new LoginPage(driver);
-
-        // Perform login
         DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
 
-        // Verify Dashboard is displayed
         String heading = dashboardPage.getDashboardHeading();
-        Assert.assertEquals(heading, "Dashboard", "Login failed or Dashboard heading mismatch");
+        Assert.assertEquals(heading, "Dashboard", "Login failed or Dashboard not displayed!");
     }
 
     @Test
-    public void verifyInvalidLogin() 
-    {
-        // Create LoginPage object
+    public void verifyInvalidLogin() {
         LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("Admin", "wrongPassword"); // this will stay on login page
 
-        // Perform login with wrong password
-        loginPage.login("Admin", "wrongPassword");
-
-        // Verify error message
-     }
-    public void verifyemptyLogin()
-    {
-    	LoginPage loginPage = new LoginPage(driver);
-    	loginPage.login("", "");
-    	
-    	}
+        // Example: verify error message (implement getErrorMessage() in LoginPage if not already done)
+        // String error = loginPage.getErrorMessage();
+        // Assert.assertEquals(error, "Invalid credentials");
     }
-    
+
+    @Test
+    public void verifyEmptyLogin() {
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("", "");
+
+        // Example: verify error (implement getErrorMessage())
+        // String error = loginPage.getErrorMessage();
+        // Assert.assertEquals(error, "Username cannot be empty");
+    }
+}
