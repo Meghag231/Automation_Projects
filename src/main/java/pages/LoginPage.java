@@ -20,7 +20,8 @@ public class LoginPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public void login(String username, String password) {
+    // ✅ return DashboardPage
+    public DashboardPage login(String username, String password) {
         WebElement user = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField));
         user.clear();
         user.sendKeys(username);
@@ -30,5 +31,8 @@ public class LoginPage {
         pass.sendKeys(password);
 
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
+
+        // after login, return new DashboardPage
+        return new DashboardPage(driver);
     }
 }
