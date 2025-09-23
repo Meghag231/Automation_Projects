@@ -21,17 +21,18 @@ public class EmployeePage {
 
     public EmployeePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20)); // more generous wait
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // CI-friendly wait
     }
 
     public EmployeePage addNewEmployee(String firstName, String lastName) {
+        // ✅ Ensure "Add Employee" is present before clicking
+        wait.until(ExpectedConditions.presenceOfElementLocated(addEmployeeLink));
         wait.until(ExpectedConditions.elementToBeClickable(addEmployeeLink)).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(firstName);
         driver.findElement(lastNameField).sendKeys(lastName);
 
         wait.until(ExpectedConditions.elementToBeClickable(saveButton)).click();
-
         return this;
     }
 
