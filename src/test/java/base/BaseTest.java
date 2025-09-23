@@ -1,45 +1,44 @@
 package base;
 
-import java.time.Duration;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.ITestResult;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-
+import org.testng.ITestResult;
 import utils.ScreenshotUtil;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class BaseTest {
     protected WebDriver driver;
 
     @BeforeMethod
-    public void setupBrowser() throws InterruptedException {
-        driver = new ChromeDriver();
+    public void setupBrowser() throws Exception {
+        ChromeOptions options = new ChromeOptions();
+
+        // ✅ Add headless mode for GitHub Actions
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+
+        // ✅ Create unique user-data-dir for each run
+        Path tempDir = Files.createTempDirectory("chrome-user-data");
+        options.addArguments("--user-data-dir=" + tempDir.toAbsolutePath());
+
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
-        driver.manage().deleteAllCookies();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.get("https://opensource-demo.orangehrmlive.com/web/index.php/auth/login");
-        Thread.sleep(2000); // small wait for page load
+        driver.get("https://opensource-demo.orangehrmlive.com/");
     }
 
     @AfterMethod
-//   public void teardownBrowser() {
-//       if (driver != null) {
-//           driver.quit();
-//           }
     public void tearDown(ITestResult result) {
         if (ITestResult.FAILURE == result.getStatus()) {
             ScreenshotUtil.takeScreenshot(driver, result.getName());
         }
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
-    
-   /* @AfterMethod
-    public void tearDown(ITestResult result) {
-        // always capture screenshot
-        ScreenshotUtil.takeScreenshot(driver, result.getName());
-        driver.quit();
-    }*/
-
 }
-
