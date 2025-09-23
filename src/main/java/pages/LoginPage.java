@@ -17,10 +17,9 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20)); // longer timeout for CI
     }
 
-    // ✅ return DashboardPage
     public DashboardPage login(String username, String password) {
         WebElement user = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField));
         user.clear();
@@ -32,7 +31,6 @@ public class LoginPage {
 
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
 
-        // after login, return new DashboardPage
         return new DashboardPage(driver);
     }
 }
