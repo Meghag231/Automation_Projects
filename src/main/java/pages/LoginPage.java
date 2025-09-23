@@ -2,57 +2,33 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
 public class LoginPage {
     private WebDriver driver;
+    private WebDriverWait wait;
 
-    // Locators
     private By usernameField = By.name("username");
     private By passwordField = By.name("password");
     private By loginButton = By.xpath("//button[@type='submit']");
-    private By errorMessage = By.xpath("//p[contains(@class,'oxd-alert-content-text')]");
-    private By dashboardHeader = By.xpath("//h6[text()='Dashboard']");
-    private By requiredMessage = By.xpath("//span[text()='Required']");
 
-    // Constructor
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // Login method
-    public DashboardPage login(String username, String password) {
-        driver.findElement(usernameField).sendKeys(username);
-        driver.findElement(passwordField).sendKeys(password);
-        driver.findElement(loginButton).click();
-        return new DashboardPage(driver);
-    }
+    public void login(String username, String password) {
+        WebElement user = wait.until(ExpectedConditions.visibilityOfElementLocated(usernameField));
+        user.clear();
+        user.sendKeys(username);
 
-    // Error handling (optional for invalid login tests)
-    public boolean isErrorDisplayed() {
-        try {
-            return driver.findElement(errorMessage).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
+        WebElement pass = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordField));
+        pass.clear();
+        pass.sendKeys(password);
 
-    public boolean isDashboardDisplayed() {
-        try {
-            return driver.findElement(dashboardHeader).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public boolean isAnyErrorDisplayed() {
-        try {
-            return driver.findElement(errorMessage).isDisplayed();
-        } catch (Exception e1) {
-            try {
-                return driver.findElement(requiredMessage).isDisplayed();
-            } catch (Exception e2) {
-                return false;
-            }
-        }
+        wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
     }
 }
