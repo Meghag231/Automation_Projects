@@ -17,7 +17,7 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20)); // longer timeout for CI
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // longer wait for CI
     }
 
     public DashboardPage login(String username, String password) {
@@ -31,6 +31,8 @@ public class LoginPage {
 
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
 
+        // ✅ Ensure navigation to dashboard
+        wait.until(ExpectedConditions.urlContains("/dashboard"));
         return new DashboardPage(driver);
     }
 }
