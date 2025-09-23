@@ -1,9 +1,6 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,7 +10,6 @@ public class EmployeePage {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // Locators
     private By pimMenu = By.xpath("//span[text()='PIM']");
     private By addEmployeeLink = By.xpath("//a[text()='Add Employee']");
     private By empListLink = By.xpath("//a[text()='Employee List']");
@@ -26,11 +22,11 @@ public class EmployeePage {
 
     public EmployeePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // ➡️ Add employee
-    public void addNewEmployee(String firstName, String lastName) {
+    // ✅ return EmployeePage after adding
+    public EmployeePage addNewEmployee(String firstName, String lastName) {
         wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
         wait.until(ExpectedConditions.elementToBeClickable(addEmployeeLink)).click();
 
@@ -38,17 +34,20 @@ public class EmployeePage {
         driver.findElement(lastNameField).sendKeys(lastName);
 
         wait.until(ExpectedConditions.elementToBeClickable(saveButton)).click();
+
+        return this; // chainable
     }
 
-    // ➡️ Go to Employee List
-    public void goToEmployeeList() {
+    // ✅ return EmployeePage after navigating
+    public EmployeePage goToEmployeeList() {
         wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
         wait.until(ExpectedConditions.elementToBeClickable(empListLink)).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h5[text()='Employee Information']")));
+        return this;
     }
 
-    // ➡️ Search employee by name
-    public void searchEmployeeByName(String fullName) {
+    // ✅ return EmployeePage after search
+    public EmployeePage searchEmployeeByName(String fullName) {
         WebElement nameBox = wait.until(ExpectedConditions.elementToBeClickable(searchBox));
         nameBox.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         nameBox.sendKeys(Keys.DELETE);
@@ -57,19 +56,21 @@ public class EmployeePage {
 
         wait.until(ExpectedConditions.elementToBeClickable(searchButton)).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(tableBody));
+
+        return this;
     }
 
-    // ✅ Simplified check: waits until table text contains both names
+    // ✅ verify result (boolean)
     public boolean isEmployeeInResults(String firstname, String lastname) {
-        boolean first = wait.until(ExpectedConditions.textToBePresentInElementLocated(tableBody, firstname));
-        boolean last = wait.until(ExpectedConditions.textToBePresentInElementLocated(tableBody, lastname));
-        return first && last;
+        String tableText = driver.findElement(tableBody).getText();
+        return tableText.contains(firstname) && tableText.contains(lastname);
     }
 
-    // ➡️ Double-click the first row to open record
-    public void openFirstEmployeeFromResults() {
+    // ✅ return EmployeePage after opening record
+    public EmployeePage openFirstEmployeeFromResults() {
         WebElement row = wait.until(ExpectedConditions.elementToBeClickable(
             By.xpath("//div[@class='oxd-table-body']//div[contains(@class,'oxd-table-card')][1]")));
         new Actions(driver).doubleClick(row).perform();
+        return this;
     }
 }
