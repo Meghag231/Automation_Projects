@@ -19,21 +19,23 @@ public class EmployeeTest extends BaseTest {
             {"Mike", "Jordan"}
         };
     }
+@Test(dataProvider = "employeeData")
+public void testAddEmployee(String firstName, String lastName) {
+    LoginPage loginPage = new LoginPage(driver);
+    DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
 
-    @Test(dataProvider = "employeeData")
-    public void testAddEmployee(String firstName, String lastName) {
-        LoginPage loginPage = new LoginPage(driver);
-        DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
+    Assert.assertNotNull(dashboardPage, "Login failed, cannot continue!");
 
-        EmployeePage employeePage = dashboardPage.goToEmployeePage();
-        boolean isAdded = employeePage
-                .addNewEmployee(firstName, lastName)
-                .goToEmployeeList()
-                .searchEmployeeByName(firstName + " " + lastName)
-                .isEmployeeInResults(firstName, lastName);
+    EmployeePage employeePage = dashboardPage.goToEmployeePage();
+    boolean isAdded = employeePage
+            .addNewEmployee(firstName, lastName)
+            .goToEmployeeList()
+            .searchEmployeeByName(firstName + " " + lastName)
+            .isEmployeeInResults(firstName, lastName);
 
-        Assert.assertTrue(isAdded, "Employee not found in list after adding!");
-    }
+    Assert.assertTrue(isAdded, "Employee not found in list after adding!");
+}
+
 
     // 🔹 Negative test (invalid employee data)
     @DataProvider(name = "invalidEmployeeData")
@@ -45,17 +47,21 @@ public class EmployeeTest extends BaseTest {
         };
     }
 
-    @Test(dataProvider = "invalidEmployeeData")
-    public void testAddEmployeeWithInvalidData(String firstName, String lastName) {
-        LoginPage loginPage = new LoginPage(driver);
-        DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
+  @Test(dataProvider = "invalidEmployeeData")
+public void testAddEmployeeWithInvalidData(String firstName, String lastName) {
+    LoginPage loginPage = new LoginPage(driver);
+    DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
 
-        EmployeePage employeePage = dashboardPage.goToEmployeePage();
-        employeePage.addNewEmployee(firstName, lastName);
+    Assert.assertNotNull(dashboardPage, "Login failed, cannot continue!");
 
-        // Example: check for validation error (add method in EmployeePage for this)
-        // String error = employeePage.getValidationError();
-        // Assert.assertEquals(error, "Required");
-    }
+    EmployeePage employeePage = dashboardPage.goToEmployeePage();
+    employeePage.addNewEmployee(firstName, lastName);
+
+    // ✅ Example validation (you can extend EmployeePage to capture specific field error)
+    // String error = employeePage.getValidationError();
+    // Assert.assertEquals(error, "Required");
 }
+
+}
+
 
