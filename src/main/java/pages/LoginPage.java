@@ -3,6 +3,7 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
@@ -14,10 +15,11 @@ public class LoginPage {
     private By usernameField = By.name("username");
     private By passwordField = By.name("password");
     private By loginButton = By.xpath("//button[@type='submit']");
+    private By errorMessage = By.xpath("//p[contains(@class,'oxd-alert-content-text')]");
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // longer wait for CI
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public DashboardPage login(String username, String password) {
@@ -31,8 +33,17 @@ public class LoginPage {
 
         wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click();
 
-        // ✅ Ensure navigation to dashboard
-        wait.until(ExpectedConditions.urlContains("/dashboard"));
-        return new DashboardPage(driver);
+        // ✅ Only return DashboardPage if login succeeds
+        try {
+            wait.until(ExpectedConditions.urlContains("/dashboard"));
+            return new DashboardPage(driver);
+        } catch (TimeoutException e) {
+            return null; // login failed, still on login page
+        }
+    }
+
+    // For invalid login checks
+    public String getErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage)).getText();
     }
 }
