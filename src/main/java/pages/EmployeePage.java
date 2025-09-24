@@ -4,6 +4,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.ScreenshotUtil;
+
 import java.time.Duration;
 
 public class EmployeePage {
@@ -11,8 +13,8 @@ public class EmployeePage {
     private WebDriverWait wait;
 
     private By pimMenu = By.xpath("//span[text()='PIM']");
-    private By addEmployeeLink = By.xpath("//a[text()='Add Employee']");
-    private By empListLink = By.xpath("//a[text()='Employee List']");
+    private By addEmployeeLink = By.xpath("//a[@class='oxd-topbar-body-nav-tab-item' and text()='Add Employee']");
+    private By empListLink = By.xpath("//a[@class='oxd-topbar-body-nav-tab-item' and text()='Employee List']");
     private By firstNameField = By.name("firstName");
     private By lastNameField = By.name("lastName");
     private By saveButton = By.xpath("//button[@type='submit']");
@@ -22,16 +24,21 @@ public class EmployeePage {
 
     public EmployeePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // CI-friendly wait
     }
 
     public EmployeePage addNewEmployee(String firstName, String lastName) {
-        // ✅ Open PIM menu first
+        // ✅ Step 1: Open PIM menu
         wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
 
-        // ✅ Then click Add Employee
+        // ✅ Step 2: Debug screenshot before clicking Add Employee
+        ScreenshotUtil.takeScreenshot(driver, "before_click_add_employee");
+
+        // ✅ Step 3: Click Add Employee tab
+        wait.until(ExpectedConditions.visibilityOfElementLocated(addEmployeeLink));
         wait.until(ExpectedConditions.elementToBeClickable(addEmployeeLink)).click();
 
+        // ✅ Step 4: Fill employee details
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(firstName);
         driver.findElement(lastNameField).sendKeys(lastName);
 
