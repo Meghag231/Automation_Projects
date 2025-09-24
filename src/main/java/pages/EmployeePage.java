@@ -10,6 +10,7 @@ public class EmployeePage {
     private WebDriver driver;
     private WebDriverWait wait;
 
+    private By pimMenu = By.xpath("//span[text()='PIM']");
     private By addEmployeeLink = By.xpath("//a[text()='Add Employee']");
     private By empListLink = By.xpath("//a[text()='Employee List']");
     private By firstNameField = By.name("firstName");
@@ -21,12 +22,14 @@ public class EmployeePage {
 
     public EmployeePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // CI-friendly wait
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
     }
 
     public EmployeePage addNewEmployee(String firstName, String lastName) {
-        // ✅ Ensure "Add Employee" is present before clicking
-        wait.until(ExpectedConditions.presenceOfElementLocated(addEmployeeLink));
+        // ✅ Open PIM menu first
+        wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
+
+        // ✅ Then click Add Employee
         wait.until(ExpectedConditions.elementToBeClickable(addEmployeeLink)).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(firstName);
@@ -37,6 +40,7 @@ public class EmployeePage {
     }
 
     public EmployeePage goToEmployeeList() {
+        wait.until(ExpectedConditions.elementToBeClickable(pimMenu)).click();
         wait.until(ExpectedConditions.elementToBeClickable(empListLink)).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h5[text()='Employee Information']")));
         return this;
