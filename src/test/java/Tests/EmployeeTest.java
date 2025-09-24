@@ -1,67 +1,44 @@
-package tests;
+package base;
 
-import base.BaseTest;
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-import pages.LoginPage;
-import pages.DashboardPage;
-import pages.EmployeePage;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import utils.ScreenshotUtil;
 
-public class EmployeeTest extends BaseTest {
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-    // 🔹 Data-driven test (multiple employees)
-    @DataProvider(name = "employeeData")
-    public Object[][] getEmployeeData() {
-        return new Object[][]{
-            {"John", "Doe"},
-            {"Jane", "Smith"},
-            {"Mike", "Jordan"}
-        };
-    }
-@Test(dataProvider = "employeeData")
-public void testAddEmployee(String firstName, String lastName) {
-    LoginPage loginPage = new LoginPage(driver);
-    DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
+public class BaseTest {
+    protected WebDriver driver;
 
-    Assert.assertNotNull(dashboardPage, "Login failed, cannot continue!");
+    @BeforeMethod
+    public void setupBrowser() throws Exception {
+        ChromeOptions options = new ChromeOptions();
 
-    EmployeePage employeePage = dashboardPage.goToEmployeePage();
-    boolean isAdded = employeePage
-            .addNewEmployee(firstName, lastName)
-            .goToEmployeeList()
-            .searchEmployeeByName(firstName + " " + lastName)
-            .isEmployeeInResults(firstName, lastName);
+        // Required for GitHub Actions headless mode
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
 
-    Assert.assertTrue(isAdded, "Employee not found in list after adding!");
-}
+        // Unique profile to avoid conflicts
+        Path tempDir = Files.createTempDirectory("chrome-user-data");
+        options.addArguments("--user-data-dir=" + tempDir.toAbsolutePath());
 
-
-    // 🔹 Negative test (invalid employee data)
-    @DataProvider(name = "invalidEmployeeData")
-    public Object[][] getInvalidEmployeeData() {
-        return new Object[][]{
-            {"", "Doe"},    // Missing first name
-            {"John", ""},   // Missing last name
-            {"", ""}        // Missing both
-        };
+        driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
+        driver.get("https://opensource-demo.orangehrmlive.com/");
     }
 
-  @Test(dataProvider = "invalidEmployeeData")
-public void testAddEmployeeWithInvalidData(String firstName, String lastName) {
-    LoginPage loginPage = new LoginPage(driver);
-    DashboardPage dashboardPage = loginPage.login("Admin", "admin123");
-
-    Assert.assertNotNull(dashboardPage, "Login failed, cannot continue!");
-
-    EmployeePage employeePage = dashboardPage.goToEmployeePage();
-    employeePage.addNewEmployee(firstName, lastName);
-
-    // ✅ Example validation (you can extend EmployeePage to capture specific field error)
-    // String error = employeePage.getValidationError();
-    // Assert.assertEquals(error, "Required");
+    @AfterMethod
+    public void tearDown(ITestResult result) {
+        if (ITestResult.FAILURE == result.getStatus()) {
+            ScreenshotUtil.takeScreenshot(driver, result.getName());
+        }
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 }
-
-}
-
-
